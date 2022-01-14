@@ -7,7 +7,18 @@ function fillButton(index, text) {
 }
 // pre-made a function. You can use this function to present an alert to say someone wins
 function winningAlert(winner) {
-	confirm(`Horraaay, ${winner} wins!`);
+	setTimeout(() => {
+		if (confirm(`Horraaay, ${winner} wins!`)) {
+			restartGame();
+		}
+	}, 100);
+}
+function drawAlert() {
+	setTimeout(() => {
+		if (confirm("No one wins!")) {
+			restartGame();
+		}
+	}, 100);
 }
 
 // SAMPLE CODE: This code fills the 1st and 9th button with X and O initially
@@ -23,22 +34,28 @@ function winningAlert(winner) {
  * That interacts with the UI
  */
 
-let term = 0;
-const winningState1 = [1, 2, 3];
-const winningState2 = [4, 5, 6];
-const winningState3 = [7, 8, 9];
-const winningState4 = [1, 5, 9];
-const winningState5 = [3, 5, 7];
-const winningState6 = [1, 4, 7];
-const winningState7 = [2, 5, 8];
-const winningState8 = [3, 5, 9];
-
+let counter = 0;
+let g = ["", "", "", "", "", "", "", "", ""];
 function clickButton(index) {
-	console.log(`Button number ${index} is clicked`);
 	// Your main code here.
-	fillButton(index, checkPlayer());
-	checkWinner();
-	term++;
+	// counter % 2 == 0 ? fillButton(index, "x") : fillButton(index, "o");
+	if (g[index - 1] === "") {
+		const currPlayer = counter % 2 == 0 ? "x" : "o";
+		if (currPlayer === "x") {
+			document.getElementById(index).classList.add("green");
+		} else {
+			document.getElementById(index).classList.add("red");
+		}
+		fillButton(index, currPlayer);
+		g[index - 1] = currPlayer;
+		checkWinner(currPlayer);
+		counter++;
+		console.log(`
+		Button number ${index} is clicked
+		Counter: ${counter}
+		Grid: ${g}
+		`);
+	}
 }
 
 /**
@@ -49,13 +66,7 @@ function clickButton(index) {
 
 // In this function you should check if the player is X or O
 
-function checkPlayer() {
-	if (term % 2 === 0) {
-		return "x";
-	} else {
-		return "o";
-	}
-}
+function checkPlayer(index) {}
 
 /**
  *
@@ -63,34 +74,25 @@ function checkPlayer() {
  * who is winning and returns the winner
  */
 
-function checkWinner() {
-	let isWin =
-		checkWinningState(winningState1) ||
-		checkWinningState(winningState2) ||
-		checkWinningState(winningState3) ||
-		checkWinningState(winningState4) ||
-		checkWinningState(winningState5) ||
-		checkWinningState(winningState6) ||
-		checkWinningState(winningState7) ||
-		checkWinningState(winningState8);
+function checkWinner(p) {
+	const r1 = [g[0], g[1], g[2]].join("") === [p, p, p].join("");
+	const r2 = [g[3], g[4], g[5]].join("") === [p, p, p].join("");
+	const r3 = [g[6], g[7], g[8]].join("") === [p, p, p].join("");
+	const c1 = [g[0], g[3], g[6]].join("") === [p, p, p].join("");
+	const c2 = [g[1], g[4], g[7]].join("") === [p, p, p].join("");
+	const c3 = [g[2], g[5], g[8]].join("") === [p, p, p].join("");
+	const d1 = [g[0], g[4], g[8]].join("") === [p, p, p].join("");
+	const d2 = [g[2], g[4], g[6]].join("") === [p, p, p].join("");
 
-	if (isWin) {
-		winningAlert(checkPlayer());
-		restartGame();
+	if (r1 || r2 || r3 || c1 || c2 || c3 || d1 || d2) {
+		winningAlert(p);
 	}
 }
-function checkWinningState(winningState) {
-	const value1 = document.getElementById(winningState[0]).innerHTML;
-	const value2 = document.getElementById(winningState[1]).innerHTML;
-	const value3 = document.getElementById(winningState[2]).innerHTML;
-	return value1 !== "" && value1 === value2 && value2 === value3;
-}
-
-// winningState = [1, 2, 3]
 
 function restartGame() {
-	for (let i = 1; i <= 9; i++) {
+	counter = 0;
+	g = ["", "", "", "", "", "", "", "", ""];
+	for (let i = 1; i < 10; i++) {
 		fillButton(i, "");
 	}
-	term = -1;
 }
